@@ -2178,7 +2178,7 @@ class ToolsNFe extends BaseTools
      * @return string
      * @throws Exception\RuntimeException
      */
-    public function sefazConsultaNfeDest($cUf= '41',$indNFe = '0', $cLastNSU = '0', $tpAmb = '1', $cnpj = '', &$aRetorno = array())
+    public function sefazConsultaNfeDest($cUf= '41',$indNFe = '0', $indEmi='0',$cLastNSU = '0', $tpAmb = '1', $cnpj = '', &$aRetorno = array())
     {
         if ($tpAmb == '') {
             $tpAmb = $this->aConfig['tpAmb'];
