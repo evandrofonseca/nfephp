@@ -61,6 +61,9 @@ class ReturnNFe
             case 'NfeDownloadNF':
                 return self::zReadDownloadNF($dom);
                 break;
+            case 'NfeConsultaDest':
+                return self::zReadConsNFeDest($dom);
+                break;
             case 'CscNFCe':
                 return self::zReadCscNFCe($dom);
                 break;
@@ -564,6 +567,71 @@ class ReturnNFe
         );
         return $aResposta;
     }
+    
+    /**
+     * zReadDownloadNF
+     * @param DOMDocument $dom
+     * @param boolean $parametro
+     * @return array
+     */
+    protected static function zReadConsNFeDest($dom) {
+        //retorno da funçao
+        $aResposta = array(
+            'bStat' => false,
+            'versao' => '',
+            'verAplic' => '',
+            'tpAmb' => '',
+            'cStat' => '',
+            'xMotivo' => '',
+            'dhResp' => '',
+            'indCont' => '',
+            'ultNSU' => '',
+            'aRetNFe' => array()
+        );
+        $tag = $dom->getNode('retConsNFeDest');
+
+        if (!isset($tag)) {
+            return $aResposta;
+        }
+
+        $ret = $dom->getNode('ret');
+
+        if (!$ret) {
+            return $aResposta;
+        }
+
+        foreach ($ret->getElementsByTagName('resNFe') as $resNFe) {
+            $aRetNFe = array();
+            $aRetNFe['NSU'] = $dom->getValue($resNFe, 'NSU');
+            $aRetNFe['chNFe'] = $dom->getValue($resNFe, 'chNFe');
+            $aRetNFe['CNPJ'] = $dom->getValue($resNFe, 'CNPJ');
+            $aRetNFe['CPF'] = $dom->getValue($resNFe, 'CPF');
+            $aRetNFe['xNome'] = $dom->getValue($resNFe, 'xNome');
+            $aRetNFe['IE'] = $dom->getValue($resNFe, 'IE');
+            $aRetNFe['dEmi'] = $dom->getValue($resNFe, 'dEmi');
+            $aRetNFe['tpNF'] = $dom->getValue($resNFe, 'tpNF');
+            $aRetNFe['vNF'] = $dom->getValue($resNFe, 'vNF');
+            $aRetNFe['digVal'] = $dom->getValue($resNFe, 'digVal');
+            $aRetNFe['dhRecbto'] = $dom->getValue($resNFe, 'dhRecbto');
+            $aRetNFe['cSitNFe'] = $dom->getValue($resNFe, 'cSitNFe');
+            $aRetNFe['cSitConf'] = $dom->getValue($resNFe, 'cSitConf');
+            $aResposta['aRetNFe'][] = $aRetNFe;
+        }
+
+
+
+        $aResposta['bStat'] = true;
+        $aResposta['versao'] = $tag->getAttribute('versao');
+        $aResposta['tpAmb'] = $dom->getValue($tag, 'tpAmb');
+        $aResposta['verAplic'] = $dom->getValue($tag, 'verAplic');
+        $aResposta['cStat'] = $dom->getValue($tag, 'cStat');
+        $aResposta['xMotivo'] = $dom->getValue($tag, 'xMotivo');
+        $aResposta['dhResp'] = $dom->getValue($tag, 'dhResp');
+        $aResposta['indCont'] = $dom->getValue($tag, 'indCont');
+        $aResposta['ultNSU'] = $dom->getValue($tag, 'ultNSU');
+        return $aResposta;
+    }
+
     
     /**
      * zGetProt
