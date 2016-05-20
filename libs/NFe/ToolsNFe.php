@@ -2167,6 +2167,68 @@ class ToolsNFe extends BaseTools
     }
     
     /**
+     * sefazConsultaNfeDest
+     * Solicita as chaves das últimas NFe contra cnpj
+     * @param string $chNFe
+     * @param string $indNFe
+     * @param string $cLastNSU
+     * @param string $tpAmb
+     * @param string $cnpj
+     * @param array $aRetorno
+     * @return string
+     * @throws Exception\RuntimeException
+     */
+    public function sefazConsultaNfeDest($cUf= '41',$indNFe = '0', $cLastNSU = '0', $tpAmb = '1', $cnpj = '', &$aRetorno = array())
+    {
+        if ($tpAmb == '') {
+            $tpAmb = $this->aConfig['tpAmb'];
+        }
+        if ($cnpj == '') {
+            $cnpj = $this->aConfig['cnpj'];
+        }
+        //carrega serviço
+        $servico = 'NfeConsultaDest';
+        $this->zLoadServico(
+            'nfe',
+            $servico,
+            'AN',
+            $tpAmb
+        );
+        if ($this->urlService == '') {
+            $msg = "O status não está disponível na SEFAZ !!!";
+            throw new Exception\RuntimeException($msg);
+        }
+        $cons = "<consNFeDest xmlns=\"$this->urlPortal\" versao=\"$this->urlVersion\">"
+                . "<tpAmb>$tpAmb</tpAmb>"
+                . "<xServ>CONSULTAR NFE DEST</xServ>"
+                . "<CNPJ>$cnpj</CNPJ>"
+                . "<indNFe>0</indNFe>"
+                . "<indEmi>0</indEmi>"
+                . "<ultNSU>$cLastNSU</ultNSU>"
+                . "</consNFeDest>";
+        //validar mensagem com xsd
+        //if (! $this->validarXml($cons)) {
+        //    $msg = 'Falha na validação. '.$this->error;
+        //    throw new Exception\RuntimeException($msg);
+        //}
+        //montagem dos dados da mensagem SOAP
+        $body = "<nfeDadosMsg xmlns=\"$this->urlNamespace\">$cons</nfeDadosMsg>";
+        $header = '<nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/NfeConsultaDest"><cUF>'.$cUf.'</cUF><versaoDados>1.01</versaoDados></nfeCabecMsg>';
+        //consome o webservice e verifica o retorno do SOAP
+        $retorno = $this->oSoap->send(
+            $this->urlService,
+            $this->urlNamespace,
+            $header,
+            $body,
+            $this->urlMethod
+        );
+
+        //tratar dados de retorno
+        $aRetorno = ReturnNFe::readReturnSefaz($servico, $retorno);
+        return (string) $retorno;
+    }
+    
+    /**
      * zStr2Hex
      * Converte string para haxadecimal ASCII
      * @param string $str
